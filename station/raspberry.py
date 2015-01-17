@@ -4,13 +4,13 @@ import os
 
 class RaspiBoard():
 
-    OUT1=24
-    OUT2=23
+    OUT1=5
+    OUT2=6
     OUT3=18
     
-    IN1=22
+    IN1=4
     IN2=17
-    IN3=4
+    IN3=22
 
     def __init__(self):
         '''

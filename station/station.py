@@ -7,11 +7,14 @@ from keypad import RaspiBoard
 import time
 
 LOG_LEVEL_PJSIP = 3
-SIP_SERVER="192.168.1.10"
-SIP_USER="raspi"
-SIP_PASS="1111"
+SIP_SERVER="192.168.1.201"
+SIP_USER="200"
+SIP_PASS="abc123"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
+SIP_EXT_TO_CALL=101
+
+
 
 def log(msg):
     print "[",datetime.datetime.now(), "] ", msg
@@ -40,6 +43,11 @@ class DBCallCallback(pj.CallCallback):
         print "**** ON STATE ", self.call
         print self.call.dump_status()
         #pj.CallCallback.on_state(self)
+
+    def on_dtmf_digit(self,digits):
+	print "*** RECEIVED DIGIT %s" %digits
+	if (digits=="9"):
+            keyboard.setTimedOutput(1,True,10)
         
 class DBAccountCallback(pj.AccountCallback):
     sem = None
@@ -122,7 +130,7 @@ class DoorStation:
             print "call in progress -> SKIP"
             return
 
-        self._call = self.acc.make_call("sip:100@"+SIP_SERVER, DBCallCallback())
+        self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
     
     def stop(self):
         try:
@@ -135,11 +143,12 @@ class DoorStation:
 class DoorBerry:
     
     station = None
-    keyboard = None    
+#    keyboard = None    
+# Making keyboard global so that it can be accessed from the other classes
     
     def __init__(self):
         self.station = DoorStation()
-        self.keyboard = RaspiBoard()
+        keyboard = RaspiBoard()
 
     def run(self):
         try:
@@ -149,7 +158,7 @@ class DoorBerry:
    
             log("entering main loop") 
             while True:
-                key = self.keyboard.keyPressed()
+                key = keyboard.keyPressed()
                 if(key == 0): 
                     time.sleep(0.2)
                     continue

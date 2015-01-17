@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 import os
-fromt threading import Timer
+from threading import Timer
 
 class RaspiBoard():
 
@@ -33,6 +33,7 @@ class RaspiBoard():
         return 0
 
     def setOut(self, output, value):
+	print  output, value
         if(output==1):
            GPIO.output(self.OUT1,value)
         elif(output==2):

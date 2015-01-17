@@ -14,6 +14,7 @@ SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
 SIP_EXT_TO_CALL=101
 
+keyboard=None
 
 
 def log(msg):

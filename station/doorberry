@@ -7,6 +7,7 @@ import daemon
 from station import DoorBerry
 
 ctx = daemon.DaemonContext()
+print ctx
 
 #pid = str(os.getpid())
 #print "PID ", pid
@@ -16,8 +17,10 @@ ctx = daemon.DaemonContext()
 
 with ctx:
     pid = str(os.getpid())
+    print pid
     file('/var/run/doorberry.pid', 'w').write(pid)
     db = DoorBerry()
+    print db
     db.run()
     print "db.run"
 print "pre ctx.run"

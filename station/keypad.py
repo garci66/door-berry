@@ -19,6 +19,7 @@ class RaspiBoard():
         GPIO.setup(self.IN1, GPIO.IN)
         GPIO.setup(self.OUT1, GPIO.OUT)
         GPIO.setup(self.OUT2, GPIO.OUT)
+	print "Setting up GPIO DONE"
 
 #        GPIO.setup(self.IN2, GPIO.IN)
 #        GPIO.setup(self.IN3, GPIO.IN)

@@ -15,7 +15,7 @@ SIP_PASS="abc123"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
 SIP_EXT_TO_CALL=102
-OUTGOING_CALL_DUR=90
+OUTGOING_CALL_DUR=30
 
 keyboard=None
 
@@ -77,6 +77,7 @@ class DoorStation:
     acc = None
     acc_cb = None
     _call = None
+    callExpired = False
     
     def __init__(self):
         lib = pj.Lib()
@@ -89,7 +90,7 @@ class DoorStation:
             mc = pj.MediaConfig()
 #            mc.no_vad = False
 #            mc.ec_tail_len = 800 
-            mc.clock_rate = 16000
+            mc.clock_rate = 8000
 
             lib.init(ua_cfg = ua, log_cfg = pj.LogConfig(level=LOG_LEVEL_PJSIP, callback=pj_log), media_cfg=mc)
             lib.create_transport(pj.TransportType.UDP, pj.TransportConfig(SIP_LOCAL_PORT))
@@ -133,15 +134,21 @@ class DoorStation:
         if (self._call != None and self._call.is_valid()):
             print "call in progress -> SKIP"
             return
-         
         self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
+	self.callExpired==False
         print "make_call completed"
-	Timer(OUTGOING_CALL_DUR,self.hangup).start()
-    
+	Timer(OUTGOING_CALL_DUR,self.expireCall).start()
+
+    def expireCall(self):
+	print "expireCall called!" 
+	self.callExpired=True
+
     def hangup(self):
+       print "hangup Called" 
        if (self._call != None and self._call.is_valid()):
 	    self._call.hangup()
 	    print "Hanging up call!" 
+	    self.callExpired=False
     
     def stop(self):
         try:
@@ -173,6 +180,9 @@ class DoorBerry:
             log("entering main loop") 
             while True:
                 key = keyboard.keyPressed()
+		print "Call Expired ", self.station.callExpired
+		if self.station.callExpired==True:
+	            self.station.hangup()
                 if(key == 0): 
                     time.sleep(0.2)
                     continue

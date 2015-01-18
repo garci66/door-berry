@@ -138,7 +138,7 @@ class DoorStation:
         print "make_call completed"
 	Timer(OUTGOING_CALL_DUR,self.hangup).start()
     
-    def hangup(self)
+    def hangup(self):
        if (self._call != None and self._call.is_valid()):
 	    self._call.hangup()
 	    print "Hanging up call!" 

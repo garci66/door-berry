@@ -25,7 +25,6 @@ def pj_log(level, msg, length):
     print "[PJ] " + msg, 
 
 class DBCallCallback(pj.CallCallback):
-
     def __init__(self, call=None):
         pj.CallCallback.__init__(self, call)
         
@@ -46,6 +45,7 @@ class DBCallCallback(pj.CallCallback):
         #pj.CallCallback.on_state(self)
 
     def on_dtmf_digit(self,digits):
+	global keyboard
 	print "*** RECEIVED DIGIT %s" %digits
 	if (digits=="9"):
             keyboard.setTimedOutput(1,True,10)
@@ -144,10 +144,12 @@ class DoorStation:
 class DoorBerry:
     
     station = None
+#    global keyboard
 #    keyboard = None    
 # Making keyboard global so that it can be accessed from the other classes
     
     def __init__(self):
+	global keyboard
         self.station = DoorStation()
         keyboard = RaspiBoard()
 
@@ -156,6 +158,7 @@ class DoorBerry:
             #station = DoorStation()
             self.station.start()
             #keyboard = RaspiBoard()
+	    global keyboard
    
             log("entering main loop") 
             while True:

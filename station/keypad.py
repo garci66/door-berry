@@ -8,17 +8,19 @@ class RaspiBoard():
     IN1=4
 #    IN2=22
 #    IN3=4
-    OUT1=5
-    OUT2=6
+    OUT1=23
+    OUT2=24
 
     def __init__(self):
         '''
         Constructor        '''
-        GPIO.cleanup()
+#        GPIO.cleanup()
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.IN1, GPIO.IN)
         GPIO.setup(self.OUT1, GPIO.OUT)
         GPIO.setup(self.OUT2, GPIO.OUT)
+	GPIO.output(self.OUT1,True)
+	GPIO.output(self.OUT2,True)
 	print "Setting up GPIO DONE"
 
 #        GPIO.setup(self.IN2, GPIO.IN)
@@ -34,14 +36,14 @@ class RaspiBoard():
         return 0
 
     def setOut(self, output, value):
-	print  output, value
+#	print  output, value
         if(output==1):
-           GPIO.output(self.OUT1,value)
+           GPIO.output(self.OUT1,not value)
         elif(output==2):
-           GPIO.output(self.OUT2,value)
+           GPIO.output(self.OUT2,not value)
 
     def setTimedOutput(self, output, value, duration):
-        setOut(output,value)
+        self.setOut(output,value)
         Timer(duration,self.setOut,[output, not value]).start()
 
 

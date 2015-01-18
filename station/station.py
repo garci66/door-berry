@@ -180,7 +180,6 @@ class DoorBerry:
             log("entering main loop") 
             while True:
                 key = keyboard.keyPressed()
-		print "Call Expired ", self.station.callExpired
 		if self.station.callExpired==True:
 	            self.station.hangup()
                 if(key == 0): 

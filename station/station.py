@@ -5,6 +5,8 @@ import threading
 import datetime
 from keypad import RaspiBoard
 import time
+from threading import Timer
+
 
 LOG_LEVEL_PJSIP = 3
 SIP_SERVER="192.168.1.201"
@@ -12,7 +14,8 @@ SIP_USER="200"
 SIP_PASS="abc123"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
-SIP_EXT_TO_CALL=101
+SIP_EXT_TO_CALL=102
+OUTGOING_CALL_DUR=90
 
 keyboard=None
 
@@ -48,7 +51,7 @@ class DBCallCallback(pj.CallCallback):
 	global keyboard
 	print "*** RECEIVED DIGIT %s" %digits
 	if (digits=="9"):
-            keyboard.setTimedOutput(1,True,10)
+            keyboard.setTimedOutput(1,True,5)
         
 class DBAccountCallback(pj.AccountCallback):
     sem = None
@@ -86,7 +89,7 @@ class DoorStation:
             mc = pj.MediaConfig()
 #            mc.no_vad = False
 #            mc.ec_tail_len = 800 
-            mc.clock_rate = 8000
+            mc.clock_rate = 16000
 
             lib.init(ua_cfg = ua, log_cfg = pj.LogConfig(level=LOG_LEVEL_PJSIP, callback=pj_log), media_cfg=mc)
             lib.create_transport(pj.TransportType.UDP, pj.TransportConfig(SIP_LOCAL_PORT))
@@ -130,8 +133,15 @@ class DoorStation:
         if (self._call != None and self._call.is_valid()):
             print "call in progress -> SKIP"
             return
-
+         
         self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
+        print "make_call completed"
+	Timer(OUTGOING_CALL_DUR,self.hangup).start()
+    
+    def hangup(self)
+       if (self._call != None and self._call.is_valid()):
+	    self._call.hangup()
+	    print "Hanging up call!" 
     
     def stop(self):
         try:

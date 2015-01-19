@@ -16,7 +16,6 @@ SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
 SIP_EXT_TO_CALL=101
 OUTGOING_CALL_DUR=90
-OUTGOING_RING_DUR=30
 keyboard=None
 callTimer=None
 callExpired=False
@@ -153,13 +152,14 @@ class DoorStation:
 
     def call(self):
 	global callExpired
+	global callTimer
         if (self._call != None and self._call.is_valid()):
             print "call in progress -> SKIP"
             return
         self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
 	callExpired==False
 	if callTimer is None:
-	    callTimer=Timer(OUTGOING_RING_DUR,self.expireCall).start()
+	    callTimer=Timer(OUTGOING_CALL_DUR,self.expireCall).start()
         print "make_call completed"
 
     def hangup(self):

@@ -15,10 +15,11 @@ SIP_PASS="abc123"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
 SIP_EXT_TO_CALL=101
-OUTGOING_CALL_DUR=30
-
+OUTGOING_CALL_DUR=90
+OUTGOING_RING_DUR=30
 keyboard=None
-
+callTimer=None
+callExpired=False
 
 def log(msg):
     print "[",datetime.datetime.now(), "] ", msg
@@ -45,6 +46,7 @@ class DBCallCallback(pj.CallCallback):
             
     def on_state(self):
 	global keyboard
+	global callTimer
         print "**** ON STATE ", self.call
         print self.call.dump_status()
         #pj.CallCallback.on_state(self)
@@ -53,6 +55,10 @@ class DBCallCallback(pj.CallCallback):
 	    keyboard.setOut(2,True)
         else:
 	    keyboard.setOut(2,False)
+	if self.call.info().state == pj.CallState.DISCONNECTED:
+            if callTimer is not None:
+                callTimer.cancel()
+		callTimer=None
 
     def on_dtmf_digit(self,digits):
 	global keyboard
@@ -84,7 +90,6 @@ class DoorStation:
     acc = None
     acc_cb = None
     _call = None
-    callExpired = False
     
     def __init__(self):
         lib = pj.Lib()
@@ -137,22 +142,30 @@ class DoorStation:
         self.acc.set_callback(self.acc_cb)
         #self.acc_cb.wait()
 
+    def expireCall(self):
+	global callExpired
+	global callTimer
+	print "expireCall called!"
+        callExpired=True
+	if callTimer is not None:
+	    callTimer.cancel()
+	    callTimer=None
+
     def call(self):
+	global callExpired
         if (self._call != None and self._call.is_valid()):
             print "call in progress -> SKIP"
             return
         self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
-	self.callExpired==False
+	callExpired==False
+	if callTimer is None:
+	    callTimer=Timer(OUTGOING_RING_DUR,self.expireCall).start()
         print "make_call completed"
-	Timer(OUTGOING_CALL_DUR,self.expireCall).start()
-
-    def expireCall(self):
-	print "expireCall called!" 
-	self.callExpired=True
 
     def hangup(self):
        print "hangup Called" 
-       self.callExpired=False
+       global callExpired
+       callExpired=False
        if (self._call != None and self._call.is_valid()):
 	    self._call.hangup()
 	    print "Hanging up call!" 

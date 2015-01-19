@@ -14,7 +14,7 @@ SIP_USER="200"
 SIP_PASS="abc123"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
-SIP_EXT_TO_CALL=102
+SIP_EXT_TO_CALL=101
 OUTGOING_CALL_DUR=30
 
 keyboard=None
@@ -33,6 +33,7 @@ class DBCallCallback(pj.CallCallback):
         
     def on_media_state(self):
         print "***** ON MEDIA STATE " , self.call.info()
+	print self.call.info().media_state
         if self.call.info().media_state == pj.MediaState.ACTIVE:
             # Connect the call to sound device
             call_slot = self.call.info().conf_slot
@@ -43,9 +44,15 @@ class DBCallCallback(pj.CallCallback):
             print "Media is inactive"
             
     def on_state(self):
+	global keyboard
         print "**** ON STATE ", self.call
         print self.call.dump_status()
         #pj.CallCallback.on_state(self)
+	if self.call.info().state in [pj.CallState.INCOMING, pj.CallState.CALLING, pj.CallState.EARLY,
+			pj.CallState.CONNECTING, pj.CallState.CONFIRMED]:
+	    keyboard.setOut(2,True)
+        else:
+	    keyboard.setOut(2,False)
 
     def on_dtmf_digit(self,digits):
 	global keyboard
@@ -145,10 +152,10 @@ class DoorStation:
 
     def hangup(self):
        print "hangup Called" 
+       self.callExpired=False
        if (self._call != None and self._call.is_valid()):
 	    self._call.hangup()
 	    print "Hanging up call!" 
-	    self.callExpired=False
     
     def stop(self):
         try:

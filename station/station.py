@@ -191,6 +191,7 @@ class DoorBerry:
         keyboard = RaspiBoard()
 
     def run(self):
+	global callExpired
         try:
             #station = DoorStation()
             self.station.start()
@@ -200,7 +201,7 @@ class DoorBerry:
             log("entering main loop") 
             while True:
                 key = keyboard.keyPressed()
-		if self.station.callExpired==True:
+		if callExpired==True:
 	            self.station.hangup()
                 if(key == 0): 
                     time.sleep(0.2)

@@ -9,8 +9,8 @@ from threading import Timer
 
 
 LOG_LEVEL_PJSIP = 3
-SIP_SERVER="localhost"
-SIP_USER="raspi"
+SIP_SERVER="192.168.1.12"
+SIP_USER="entrada"
 SIP_PASS="1111"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072

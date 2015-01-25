@@ -9,16 +9,13 @@ from threading import Timer
 
 
 LOG_LEVEL_PJSIP = 3
-SIP_SERVER="192.168.1.201"
-SIP_USER="200"
-SIP_PASS="abc123"
+SIP_SERVER="localhost"
+SIP_USER="raspi"
+SIP_PASS="1111"
 SIP_REALM="asterisk"
 SIP_LOCAL_PORT=5072
-SIP_EXT_TO_CALL=101
-OUTGOING_CALL_DUR=90
+SIP_EXT_TO_CALL=100
 keyboard=None
-callTimer=None
-callExpired=False
 
 def log(msg):
     print "[",datetime.datetime.now(), "] ", msg
@@ -45,7 +42,6 @@ class DBCallCallback(pj.CallCallback):
             
     def on_state(self):
 	global keyboard
-	global callTimer
         print "**** ON STATE ", self.call
         print self.call.dump_status()
         #pj.CallCallback.on_state(self)
@@ -54,10 +50,6 @@ class DBCallCallback(pj.CallCallback):
 	    keyboard.setOut(2,True)
         else:
 	    keyboard.setOut(2,False)
-	if self.call.info().state == pj.CallState.DISCONNECTED:
-            if callTimer is not None:
-                callTimer.cancel()
-		callTimer=None
 
     def on_dtmf_digit(self,digits):
 	global keyboard
@@ -141,31 +133,16 @@ class DoorStation:
         self.acc.set_callback(self.acc_cb)
         #self.acc_cb.wait()
 
-    def expireCall(self):
-	global callExpired
-	global callTimer
-	print "expireCall called!"
-        callExpired=True
-	if callTimer is not None:
-	    callTimer.cancel()
-	    callTimer=None
 
     def call(self):
-	global callExpired
-	global callTimer
         if (self._call != None and self._call.is_valid()):
             print "call in progress -> SKIP"
             return
         self._call = self.acc.make_call("sip:%d@%s" %(SIP_EXT_TO_CALL,SIP_SERVER), DBCallCallback())
-	callExpired==False
-	if callTimer is None:
-	    callTimer=Timer(OUTGOING_CALL_DUR,self.expireCall).start()
         print "make_call completed"
 
     def hangup(self):
        print "hangup Called" 
-       global callExpired
-       callExpired=False
        if (self._call != None and self._call.is_valid()):
 	    self._call.hangup()
 	    print "Hanging up call!" 
@@ -191,7 +168,6 @@ class DoorBerry:
         keyboard = RaspiBoard()
 
     def run(self):
-	global callExpired
         try:
             #station = DoorStation()
             self.station.start()
@@ -201,8 +177,6 @@ class DoorBerry:
             log("entering main loop") 
             while True:
                 key = keyboard.keyPressed()
-		if callExpired==True:
-	            self.station.hangup()
                 if(key == 0): 
                     time.sleep(0.2)
                     continue

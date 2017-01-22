@@ -9,7 +9,10 @@ from threading import Timer
 
 
 LOG_LEVEL_PJSIP = 3
-SIP_SERVER="192.168.1.12"
+#SIP_SERVER="192.168.137.1"
+#SIP_SERVER="192.168.137.139"
+SIP_SERVER="localhost"
+
 SIP_USER="entrada"
 SIP_PASS="1111"
 SIP_REALM="asterisk"
@@ -92,7 +95,7 @@ class DoorStation:
        
             mc = pj.MediaConfig()
 #            mc.no_vad = False
-#            mc.ec_tail_len = 800 
+            mc.ec_tail_len = 100 
             mc.clock_rate = 8000
 
             lib.init(ua_cfg = ua, log_cfg = pj.LogConfig(level=LOG_LEVEL_PJSIP, callback=pj_log), media_cfg=mc)

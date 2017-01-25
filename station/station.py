@@ -47,12 +47,6 @@ class DBCallCallback(pj.CallCallback):
 	global keyboard
         print "**** ON STATE ", self.call
         print self.call.dump_status()
-        #pj.CallCallback.on_state(self)
-	if self.call.info().state in [pj.CallState.INCOMING, pj.CallState.CALLING, pj.CallState.EARLY,
-			pj.CallState.CONNECTING, pj.CallState.CONFIRMED]:
-	    keyboard.setOut(2,True)
-        else:
-	    keyboard.setOut(2,False)
 
     def on_dtmf_digit(self,digits):
 	global keyboard
@@ -195,4 +189,5 @@ class DoorBerry:
                     time.sleep(2)
                 
         except Exception, e:
+	    O.IN, pull_up_down=GPIO.PUD_UPkeyboard.setOut(2,False)
             print e

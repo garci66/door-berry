@@ -52,7 +52,7 @@ class DBCallCallback(pj.CallCallback):
 	global keyboard
 	print "*** RECEIVED DIGIT %s" %digits
 	if (digits=="9"):
-            keyboard.setTimedOutput(1,True,5)
+            keyboard.setTimedOutput(2,True,0.2)
         
 class DBAccountCallback(pj.AccountCallback):
     sem = None

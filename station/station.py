@@ -53,6 +53,16 @@ class DBCallCallback(pj.CallCallback):
 	print "*** RECEIVED DIGIT %s" %digits
 	if (digits=="9"):
             keyboard.setTimedOutput(2,True,0.2)
+        if (digits=="8"):
+            print "entering if for button 8 + call_slot: " 
+            call_slot = self.call.info().conf_slot
+            player_id = pj.Lib.instance().create_player("./eight.wav") 
+            print "Wav player id is: ", player_id
+            player_slot = pj.Lib.instance().player_get_slot(player_id)
+            print player_slot, call_slot 
+            pj.Lib.instance().conf_connect(player_slot, call_slot) 
+            sleep(2)
+            pj.Lib.instance().player_destroy(player_id)
         
 class DBAccountCallback(pj.AccountCallback):
     sem = None
